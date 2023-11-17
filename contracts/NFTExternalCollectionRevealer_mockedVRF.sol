@@ -84,7 +84,7 @@ contract NFTExternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
         VRF_INITIALIZED = true;
     }
 
-    function mint(address to) public payable whenNotPaused vrfInitialized {
+    function mint(address to) public payable whenNotPaused revealStarted vrfInitialized {
         require(msg.value >= MINT_PRICE, "Insufficient funds to mint");
 
         _safeMint(to, _token_id);
@@ -125,7 +125,7 @@ contract NFTExternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
         emit Reveal(address(this), token_owner, tokenId, reveal_id);
     }
 
-    function burnAndMintToExternal(address token_owner, uint256 tokenId, string memory revealed_uri) internal virtual vrfInitialized {
+    function burnAndMintToExternal(address token_owner, uint256 tokenId, string memory revealed_uri) internal virtual revealStarted vrfInitialized {
         require(token_owner == ownerOf(tokenId), "User does not own this token");
 
         externalNFTCollection.mint(ownerOf(tokenId), tokenId, revealed_uri);
@@ -134,13 +134,13 @@ contract NFTExternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
         require(token_owner == externalNFTCollection.ownerOf(tokenId), "User does not own token minted on external contract");
     }
 
-    function request_random_words() private view vrfInitialized returns (uint256 _request_id) {
+    function request_random_words() private view revealStarted vrfInitialized returns (uint256 _request_id) {
         uint256 rand_seed = uint256(keccak256(abi.encodePacked(block.timestamp, blockhash(block.number - 1))));
 
         _request_id = (rand_seed % max_supply) + 1; // mock return value of VRFv2Consumer.requestRandomWords()
     }
 
-    function get_random_words(uint256 _request_id) private view vrfInitialized returns (uint256[6] memory random_words) {
+    function get_random_words(uint256 _request_id) private view revealStarted vrfInitialized returns (uint256[6] memory random_words) {
         uint256[6] memory random_words = [
             uint256(8639826497326470932),
             uint256(2342389583947543498),
@@ -151,11 +151,11 @@ contract NFTExternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
         ]; // mock return value of VRFv2Consumer.getRequestStatus()[1]
     }
 
-    function _truncate_number_within_max_supply_range(uint256 value) private view vrfInitialized returns (uint256) {
+    function _truncate_number_within_max_supply_range(uint256 value) public view vrfInitialized returns (uint256) {
         return (value % max_supply) + 1;
     }
 
-    function _get_random_metadata_index(uint256[6] memory random_words) private view vrfInitialized returns(uint256) {
+    function _get_random_metadata_index(uint256[6] memory random_words) private view revealStarted vrfInitialized returns(uint256) {
         uint256 reveal_id;
 
         for (uint i = 0; i < random_words.length; ++i){

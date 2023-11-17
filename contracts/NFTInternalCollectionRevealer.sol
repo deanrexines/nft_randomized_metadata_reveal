@@ -35,9 +35,6 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         string memory name,
         string memory description,
         address owner,
-        uint256 _mint_price,
-        string[] memory _reveal_metadata,
-        string memory _unrevealed_metadata,
         uint256 _max_supply,
         address _vrf_v2_consumer_contract
     )
@@ -47,13 +44,17 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         is_reveal_id_claimed[0] = true; // token_id=0 should not exist
 
         max_supply = _max_supply;
-        
-        require(_reveal_metadata.length == max_supply, "Must have metadata to reveal for max possible tokens");
-        REVEAL_METADATA = _reveal_metadata;
-    
-        UNREVEALED_METADATA = _unrevealed_metadata;
 
-        MINT_PRICE = _mint_price;
+        REVEAL_METADATA = [
+            '{"trait1": "value1"}',
+            '{"trait2": "value2"}',
+            '{"trait3": "value3"}',
+            '{"trait4": "value4"}',
+            '{"trait5": "value5"}',
+            '{"trait6": "value6"}'
+        ];
+        UNREVEALED_METADATA = '{"generic_trait": "generic_value"}';
+        MINT_PRICE = 0.0;
 
         vrfV2Consumer = VRFv2Consumer(_vrf_v2_consumer_contract);
         
@@ -71,7 +72,7 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         _;
     }
     
-    function start_reveal() external onlyOwner {
+    function start_reveal() external onlyOwner vrfInitialized() {
         // once reveal stage is started, it should not be able to be switched back off
         REVEAL_STARTED = true;
     }
@@ -81,7 +82,7 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         VRF_INITIALIZED = true;
     }
 
-    function mint(address to) public payable whenNotPaused vrfInitialized {
+    function mint(address to) public payable whenNotPaused revealStarted vrfInitialized {
         require(msg.value >= MINT_PRICE, "Insufficient funds to mint");
 
         _safeMint(to, _token_id);
@@ -96,26 +97,26 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         }
     }
 
-    function initiate_reveal_request() public returns (uint256 _request_id) {
+    function initiate_reveal_request() public revealStarted vrfInitialized returns (uint256 _request_id) {
         _request_id = request_random_words();
     }
 
-    function reveal(uint256 tokenId, uint256 request_id) public {
+    function reveal(uint256 tokenId, uint256 request_id) public revealStarted vrfInitialized {
         require(msg.sender == ownerOf(tokenId), "User does not own this token");
         require(!is_token_revealed[tokenId], "Token already revealed"); // to help throttle unecessary traffic from already-claimed token & prevent users from abusing Chainlink calls
 
-        uint256[] memory random_words = get_random_words(request_id);
+        uint256 _request_id = request_random_words();
+        uint256[] memory random_words = get_random_words(_request_id);
         _reveal(msg.sender, tokenId, _get_random_metadata_index(random_words));
     }
 
-    function _reveal(address token_owner, uint256 tokenId, uint256 reveal_id) public revealStarted vrfInitialized {
+    function _reveal(address token_owner, uint256 tokenId, uint256 reveal_id) private revealStarted vrfInitialized {
         require(token_owner == ownerOf(tokenId), "User does not own this token");
 
         string memory revealed_uri = REVEAL_METADATA[reveal_id];
        _setTokenURI(tokenId, revealed_uri);
 
         is_reveal_id_claimed[reveal_id] = true;
-        ++_num_claimed;
 
         emit Reveal(address(this), token_owner, tokenId, reveal_id);
     }
@@ -124,21 +125,21 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         return address(vrfV2Consumer);
     }
 
-    function request_random_words() private vrfInitialized returns (uint256 _request_id) {
+    function request_random_words() private revealStarted vrfInitialized returns (uint256 _request_id) {
         _request_id = vrfV2Consumer.requestRandomWords();
     }
 
-    function get_random_words(uint256 _request_id) private view vrfInitialized returns (uint256[] memory) {
+    function get_random_words(uint256 _request_id) private view revealStarted vrfInitialized returns (uint256[] memory) {
         (bool fulfilled, uint256[] memory randomWords) = vrfV2Consumer.getRequestStatus(_request_id);
 
         return randomWords;
     }
 
-    function _truncate_number_within_max_supply_range(uint256 value) private view vrfInitialized returns (uint256) {
+    function _truncate_number_within_max_supply_range(uint256 value) public view vrfInitialized returns (uint256) {
         return (value % max_supply) + 1;
     }
 
-    function _get_random_metadata_index(uint256[] memory random_words) private view vrfInitialized returns(uint256) {
+    function _get_random_metadata_index(uint256[] memory random_words) private view revealStarted vrfInitialized returns(uint256) {
         uint256 reveal_id;
 
         for (uint i = 0; i < random_words.length; ++i){

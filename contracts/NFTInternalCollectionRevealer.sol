@@ -47,7 +47,7 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         is_reveal_id_claimed[0] = true; // token_id=0 should not exist
 
         max_supply = _max_supply;
-
+        
         require(_reveal_metadata.length == max_supply, "Must have metadata to reveal for max possible tokens");
         REVEAL_METADATA = _reveal_metadata;
     
@@ -96,7 +96,11 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         }
     }
 
-    function reveal(uint256 tokenId, uint256 request_id) public revealStarted vrfInitialized {
+    function initiate_reveal_request() public returns (uint256 _request_id) {
+        _request_id = request_random_words();
+    }
+
+    function reveal(uint256 tokenId, uint256 request_id) public {
         require(msg.sender == ownerOf(tokenId), "User does not own this token");
         require(!is_token_revealed[tokenId], "Token already revealed"); // to help throttle unecessary traffic from already-claimed token & prevent users from abusing Chainlink calls
 

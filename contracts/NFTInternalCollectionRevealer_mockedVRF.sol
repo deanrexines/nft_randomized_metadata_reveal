@@ -1,5 +1,5 @@
-pragma solidity ^0.8.20;
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -117,6 +117,9 @@ contract NFTInternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
         _setTokenURI(tokenId, revealed_uri);
 
         is_reveal_id_claimed[reveal_id] = true;
+        ++_num_claimed;
+
+        emit Reveal(address(this), token_owner, tokenId, reveal_id);
     }
 
     function request_random_words() private view vrfInitialized returns (uint256 _request_id) {

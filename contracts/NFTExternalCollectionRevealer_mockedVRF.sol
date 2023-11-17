@@ -1,5 +1,5 @@
-pragma solidity ^0.8.20;
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -113,12 +113,16 @@ contract NFTExternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
 
     function _reveal(address token_owner, uint256 tokenId, uint256 reveal_id) private revealStarted vrfInitialized {
         require(token_owner == ownerOf(tokenId), "User does not own this token");
+        require(!is_reveal_id_claimed[reveal_id] && reveal_id <= REVEAL_METADATA.length, "Metadata has already been claimed in a previous reveal");
 
         string memory revealed_uri = REVEAL_METADATA[reveal_id];
 
         burnAndMintToExternal(token_owner, tokenId, revealed_uri);
 
         is_reveal_id_claimed[reveal_id] = true;
+        ++_num_claimed;
+
+        emit Reveal(address(this), token_owner, tokenId, reveal_id);
     }
 
     function burnAndMintToExternal(address token_owner, uint256 tokenId, string memory revealed_uri) internal virtual vrfInitialized {
@@ -127,7 +131,7 @@ contract NFTExternalCollectionRevealer_mockedVRF is ERC721, ERC721URIStorage, ER
         externalNFTCollection.mint(ownerOf(tokenId), tokenId, revealed_uri);
         _burn(tokenId);
         
-        require(token_owner == externalNFTCollection.ownerOf(tokenId), "ownerOf(tokenId)");
+        require(token_owner == externalNFTCollection.ownerOf(tokenId), "User does not own token minted on external contract");
     }
 
     function request_random_words() private view vrfInitialized returns (uint256 _request_id) {

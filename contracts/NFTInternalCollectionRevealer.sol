@@ -104,8 +104,7 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         require(msg.sender == ownerOf(tokenId), "User does not own this token");
         require(!is_token_revealed[tokenId], "Token already revealed"); // to help throttle unecessary traffic from already-claimed token & prevent users from abusing Chainlink calls
 
-        uint256 _request_id = request_random_words();
-        uint256[] memory random_words = get_random_words(_request_id);
+        uint256[] memory random_words = get_random_words(request_id);
         _reveal(msg.sender, tokenId, _get_random_metadata_index(random_words));
     }
 
@@ -116,6 +115,7 @@ contract NFTInternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
        _setTokenURI(tokenId, revealed_uri);
 
         is_reveal_id_claimed[reveal_id] = true;
+        ++_num_claimed;
 
         emit Reveal(address(this), token_owner, tokenId, reveal_id);
     }

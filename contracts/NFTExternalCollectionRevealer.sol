@@ -133,7 +133,7 @@ contract NFTExternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         externalNFTCollection.mint(ownerOf(tokenId), tokenId, revealed_uri);
         _burn(tokenId);
         
-        require(token_owner == externalNFTCollection.ownerOf(tokenId), "ownerOf(tokenId)");
+        require(token_owner == externalNFTCollection.ownerOf(tokenId), "User does not own token minted on external contract");
     }
 
     function get_vrf_consumer_address() public view vrfInitialized returns (address) {

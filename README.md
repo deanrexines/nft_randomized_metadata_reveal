@@ -39,3 +39,8 @@ User role:
 - these contract implementations are just for testing purposes. The Hardhat unit tests of core functionalities for
   **NFTInternalCollectionRevealer**/**NFTExternalCollectionRevealer** contracts are tested via this mock contracts to be
   able to test core functions without relying on real VRF interactions
+
+**Sepolia testnet deployments**
+**NFTInternalCollectionRevealer**: 0x6988F08D936000E288B6e8b8Ac8F23Ae6DCDC0Ae
+**NFTExternalCollectionRevealer**: 0x4Fb5a6681847ab8e34070c2465F37595Cf69d8A0
+**VRFv2Consumer**: 0x8d99F109087893418e185C7011686804F75Fd8c6

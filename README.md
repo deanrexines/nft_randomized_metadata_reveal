@@ -1,8 +1,8 @@
-**NFTInternalCollectionRevealer**: NFT collection that reveals metadata to tokens in same collection contract
-**NFTExternalCollectionRevealer**: NFT collection that reveals metadata to a different collection contract, using a burn and mint mechanism
-**VRFv2Consumer**: implementation of a Chainlink VRF subscriber contract that fetches true random values, for generating NFT metadata reveal indices
-**NFTInternalCollectionRevealer_mockedVRF**: TEST USE ONLY -> mock implementation of NFTInternalCollectionRevealer, with all VRF function mocked with static, local values
-**NFTExternalCollectionRevealer_mockedVRF**: TEST USE ONLY -> mock implementation of NFTInternalCollectionRevealer, with all VRF function mocked with static, local values
+- **NFTInternalCollectionRevealer**: NFT collection that reveals metadata to tokens in same collection contract
+- **NFTExternalCollectionRevealer**: NFT collection that reveals metadata to a different collection contract, using a burn and mint mechanism
+- **VRFv2Consumer**: implementation of a Chainlink VRF subscriber contract that fetches true random values, for generating NFT metadata reveal indices
+- **NFTInternalCollectionRevealer_mockedVRF**: TEST USE ONLY -> mock implementation of NFTInternalCollectionRevealer, with all VRF function mocked with static, local values
+- **NFTExternalCollectionRevealer_mockedVRF**: TEST USE ONLY -> mock implementation of NFTInternalCollectionRevealer, with all VRF function mocked with static, local values
 
 Usage instructions:
 **VRFv2Consumer**
@@ -41,10 +41,10 @@ User role:
   able to test core functions without relying on real VRF interactions
 
 **Sepolia testnet deployments**
-**NFTInternalCollectionRevealer**: 0x6988F08D936000E288B6e8b8Ac8F23Ae6DCDC0Ae
-**NFTExternalCollectionRevealer**: 0x4Fb5a6681847ab8e34070c2465F37595Cf69d8A0
-**VRFv2Consumer**: 0x8d99F109087893418e185C7011686804F75Fd8c6
+- **NFTInternalCollectionRevealer**: 0x6988F08D936000E288B6e8b8Ac8F23Ae6DCDC0Ae
+- **NFTExternalCollectionRevealer**: 0x4Fb5a6681847ab8e34070c2465F37595Cf69d8A0
+- **VRFv2Consumer**: 0x8d99F109087893418e185C7011686804F75Fd8c6
 
 **Run tests:**
-npm i hardhat
-npx hardhat test (in root)
+- npm i hardhat
+- npx hardhat test (in root)

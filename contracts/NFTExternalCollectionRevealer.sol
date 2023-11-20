@@ -39,6 +39,9 @@ contract NFTExternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
         string memory external_collection_name,
         string memory external_collection_description,
         address owner,
+        uint256 _mint_price,
+        string[] memory _reveal_metadata,
+        string memory _unrevealed_metadata,
         uint256 _max_supply,
         address _vrf_v2_consumer_contract
     )
@@ -49,16 +52,12 @@ contract NFTExternalCollectionRevealer is ERC721, ERC721URIStorage, ERC721Burnab
 
         max_supply = _max_supply;
 
-        REVEAL_METADATA = [
-            '{"trait1": "value1"}',
-            '{"trait2": "value2"}',
-            '{"trait3": "value3"}',
-            '{"trait4": "value4"}',
-            '{"trait5": "value5"}',
-            '{"trait6": "value6"}'
-        ];
-        UNREVEALED_METADATA = '{"generic_trait": "generic_value"}';
-        MINT_PRICE = 0.0;
+        require(_reveal_metadata.length == max_supply, "Must have metadata to reveal for max possible tokens");
+        REVEAL_METADATA = _reveal_metadata;
+    
+        UNREVEALED_METADATA = _unrevealed_metadata;
+
+        MINT_PRICE = _mint_price;
 
         vrfV2Consumer = VRFv2Consumer(_vrf_v2_consumer_contract);
         

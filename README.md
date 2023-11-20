@@ -4,17 +4,17 @@
 - **NFTInternalCollectionRevealer_mockedVRF**: TEST USE ONLY -> mock implementation of NFTInternalCollectionRevealer, with all VRF function mocked with static, local values
 - **NFTExternalCollectionRevealer_mockedVRF**: TEST USE ONLY -> mock implementation of NFTInternalCollectionRevealer, with all VRF function mocked with static, local values
 
-Usage instructions:
-**VRFv2Consumer**
-Owner role:
+---------------Usage instructions:---------------
+- **VRFv2Consumer**
+- *Owner role:*
 - ref: https://docs.chain.link/vrf/v2/subscription/examples/get-a-random-number/#create-and-fund-a-subscription -> follow thoroughly to set up a **VRF subscription**
 - deploy an instance of the **VRFv2Consumer** contract
 - Go to https://vrf.chain.link and sign in to your wallet on the same chain/net you deployed to consumer contract on
 - Add the deployed **VRFv2Consumer** contract address as a Consumer
 - Make sure the subscription is funding with LINK (real or test LINK, depending if on mainnet or testnet)
   
-**NFTInternalCollectionRevealer**/**NFTExternalCollectionRevealer**
-Owner role:
+-**NFTInternalCollectionRevealer**/**NFTExternalCollectionRevealer**
+- *Owner role:*
 - deploy an instance of either contract, depending upon desired reveal mechanism. one of the constructor args shoukd be the address of the deployed **VRFv2Consumer**
   contract from the previous step
 - call **confirm_vrf_intialized** from the same Owner (deploy) wallet once Owner has finished doing basic VRF setup
@@ -22,7 +22,7 @@ Owner role:
 - call **start_reveal** to kick off reveal! Users are now able to mint and reveal their secret, randomized metadata.
 - Owner's remaining role is to monitor launch and pause/unpause if needed via the OZ **Pausable** that is inherited
 
-User role:
+- *User role:*
 - call **initiate_reveal_request** -> this fetches a request_id for fetching random words from VRF. this will be used in next step
 - call **reveal** with request_id retrieved previous step
 - User metadata will be revealed! The reveal method will automatically be done via the one built into whatever contract the Owner
